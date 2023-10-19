@@ -1,9 +1,11 @@
+import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataContacts } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
+import { db } from "../../config/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 const Contacts = () => {
   const theme = useTheme();
@@ -19,9 +21,9 @@ const Contacts = () => {
       cellClassName: "name-column--cell",
     },
     {
-      field: "age",
-      headerName: "Age",
-      type: "number",
+      field: "walkInOnline",
+      headerName: "Walk-in/Online",
+      type: "text",
       headerAlign: "left",
       align: "left",
     },
@@ -31,32 +33,64 @@ const Contacts = () => {
       flex: 1,
     },
     {
-      field: "email",
-      headerName: "Email",
-      flex: 1,
-    },
-    {
       field: "address",
       headerName: "Address",
       flex: 1,
     },
     {
-      field: "city",
-      headerName: "City",
+      field: "date",
+      headerName: "Check-in Date",
       flex: 1,
     },
     {
-      field: "zipCode",
-      headerName: "Zip Code",
+      field: "time",
+      headerName: "Check-in Time",
       flex: 1,
     },
+    {
+      field: "cost",
+      headerName: "Cost",
+      flex: 1,
+      renderCell: (params) => (
+        // Render the cost with a peso sign
+        <span>₱ {params.value}</span>
+      ),
+    },
   ];
+  const [rows, setRows] = useState([]);
 
+  useEffect(() => {
+    // Define an async function to fetch data from Firestore
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(collection(db, "check-in"));
+      const data = [];
+      let idCounter = 1;
+      querySnapshot.forEach((doc) => {
+        const docData = doc.data();
+        // Format data as required by the DataGrid
+        data.push({
+          id: idCounter++, // Firestore document ID
+          registrarId: docData.idPresented,
+          name: `${docData.firstName} ${docData.lastName}`,
+          walkInOnline: docData.checkinType,
+          phone: docData.contact,
+          address: docData.address,
+          date: docData.date,
+          time: docData.time,
+          cost: docData.total,
+        });
+      });
+      setRows(data);
+    };
+
+    // Call the async function to fetch data when the component mounts
+    fetchData();
+  }, []);
   return (
     <Box m="20px">
       <Header
-        title="CONTACTS"
-        subtitle="List of Contacts for Future Reference"
+        title="Check-in"
+        subtitle="List of customers"
       />
       <Box
         m="40px 0 0 0"
@@ -91,7 +125,7 @@ const Contacts = () => {
         }}
       >
         <DataGrid
-          rows={mockDataContacts}
+          rows={rows}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
         />

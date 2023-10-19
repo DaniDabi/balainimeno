@@ -99,7 +99,7 @@ const Sidebar = () => {
                 />
               </Box>
               <Box textAlign="center">
-                <Typography variant="h5" color={colors.greenAccent[500]}>
+                <Typography variant="h5" color={colors.greenAccent[500]} mt={2}>
                   ADMIN
                 </Typography>
               </Box>
