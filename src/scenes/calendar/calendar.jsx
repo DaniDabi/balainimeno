@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FullCalendar, { formatDate } from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -10,15 +10,52 @@ import {
   ListItem,
   ListItemText,
   Typography,
+  TextField,
+  Button,
   useTheme,
 } from "@mui/material";
 import Header from "../../components/Header";
 import { tokens } from "../../theme";
+import { db } from "../../config/firebase";
+import {
+  collection,
+  query,
+  onSnapshot,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 
 const Calendar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [currentEvents, setCurrentEvents] = useState([]);
+  const [newEventTitle, setNewEventTitle] = useState("");
+  const [newEventDate, setNewEventDate] = useState("");
+
+  // Fetch events from Firestore
+  useEffect(() => {
+    const eventsCollection = collection(db, "events");
+    const eventsQuery = query(eventsCollection);
+
+    const unsubscribe = onSnapshot(eventsQuery, (snapshot) => {
+      const events = [];
+      snapshot.forEach((doc) => {
+        const eventData = doc.data();
+        events.push({
+          id: doc.id,
+          title: eventData.title,
+          start: eventData.start,
+          end: eventData.end,
+          allDay: eventData.allDay,
+        });
+      });
+      setCurrentEvents(events);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const handleDateClick = (selected) => {
     const title = prompt("Please enter a new title for your event");
@@ -43,6 +80,25 @@ const Calendar = () => {
       )
     ) {
       selected.event.remove();
+    }
+  };
+
+  const handleAddEvent = async () => {
+    if (newEventTitle && newEventDate) {
+      const eventsCollection = collection(db, "events");
+      try {
+        await addDoc(eventsCollection, {
+          title: newEventTitle,
+          start: newEventDate,
+          end: newEventDate,
+          allDay: true,
+          created: serverTimestamp(),
+        });
+        setNewEventTitle("");
+        setNewEventDate("");
+      } catch (error) {
+        console.error("Error adding event: ", error);
+      }
     }
   };
 
@@ -108,21 +164,40 @@ const Calendar = () => {
             dayMaxEvents={true}
             select={handleDateClick}
             eventClick={handleEventClick}
-            eventsSet={(events) => setCurrentEvents(events)}
-            initialEvents={[
-              {
-                id: "12315",
-                title: "All-day event",
-                date: "2022-09-14",
-              },
-              {
-                id: "5123",
-                title: "Timed event",
-                date: "2022-09-28",
-              },
-            ]}
+            events={currentEvents} // Pass the events data to FullCalendar
           />
         </Box>
+      </Box>
+
+      {/* Event creation form */}
+      <Box
+        p="10px"
+        border={`1px solid ${colors.grey[300]}`}
+        borderRadius="4px"
+        mt="20px"
+      >
+        <Typography variant="h6">Add Event</Typography>
+        <TextField
+          label="Title"
+          fullWidth
+          value={newEventTitle}
+          onChange={(e) => setNewEventTitle(e.target.value)}
+        />
+        <TextField
+          label="Date"
+          fullWidth
+          type="date"
+          value={newEventDate}
+          onChange={(e) => setNewEventDate(e.target.value)}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleAddEvent}
+          mt="10px"
+        >
+          Add Event
+        </Button>
       </Box>
     </Box>
   );

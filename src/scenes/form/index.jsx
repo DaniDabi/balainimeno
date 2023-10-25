@@ -20,13 +20,13 @@ const Form = () => {
     // Create a reference to the 'check-in' collection
     const checkInCollection = collection(db, "check-in");
     const total = parseFloat(values.roomRate) - parseFloat(values.discount)
-  
     try {
       // Add the form data to the Firestore collection
       await addDoc(checkInCollection, {
         checkinType: values.checkinType,
         idPresented: values.idPresented,
-        date: values.date,
+        checkInDate: values.che,
+        checkOutDate: values.checkOutDate,
         time: values.time,
         firstName: values.firstName,
         lastName: values.lastName,
@@ -121,13 +121,13 @@ const Form = () => {
                 fullWidth
                 variant="filled"
                 type="date"
-                label="Date"
+                label="Check-In Date"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.date}
-                name="date"
-                error={!!touched.date && !!errors.date}
-                helperText={touched.date && errors.date}
+                value={values.checkInDate}
+                name="checkInDate"
+                error={!!touched.checkInDate && !!errors.checkInDate}
+                helperText={touched.checkInDate && errors.checkInDate}
                 sx={{ gridColumn: "span 1", gridRow: "1 / span 1" }}
               />
               <TextField
@@ -169,6 +169,19 @@ const Form = () => {
                 helperText={touched.lastName && errors.lastName}
                 sx={{ gridColumn: "span 1", gridRow: "2 / span 1" }}
               />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="Date"
+                label="Check-out Date"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.checkOutDate}
+                name="checkOutDate"
+                error={!!touched.checkOutDate && !!errors.checkOutDate}
+                helperText={touched.checkOutDate && errors.checkOutDate}
+                sx={{ gridColumn: "span 1", gridRow: "2 / span 1" }}
+              />
               <Select
                 fullWidth
                 variant="filled"
@@ -188,42 +201,7 @@ const Form = () => {
                 <MenuItem value="queenFamily1">Queen Family 1</MenuItem>
                 <MenuItem value="queenFamily2">Queen Family 2</MenuItem>
               </Select>
-              <Select
-                fullWidth
-                variant="filled"
-                label="Room Number"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.roomNum}
-                name="roomNum"
-                error={!!touched.roomNum && !!errors.roomNum}
-                helperText={touched.roomNum && errors.roomNum}
-                sx={{ gridColumn: "span 1", gridRow: "2 / span 1" }}
-              >
-                <MenuItem value="roomNum" disabled>Select Room Number</MenuItem>
-                <MenuItem value="202">202</MenuItem>
-                <MenuItem value="203">203</MenuItem>
-                <MenuItem value="204">204</MenuItem>
-                <MenuItem value="205">205</MenuItem>
-                <MenuItem value="206">206</MenuItem>
-                <MenuItem value="207">207</MenuItem>
-                <MenuItem value="208">208</MenuItem>
-                <MenuItem value="301">301</MenuItem>
-                <MenuItem value="302">302</MenuItem>
-                <MenuItem value="303">303</MenuItem>
-                <MenuItem value="304">304</MenuItem>
-                <MenuItem value="305">305</MenuItem>
-                <MenuItem value="306">306</MenuItem>
-                <MenuItem value="307">307</MenuItem>
-                <MenuItem value="308">308</MenuItem>
-                <MenuItem value="401">401</MenuItem>
-                <MenuItem value="402">402</MenuItem>
-                <MenuItem value="403">403</MenuItem>
-                <MenuItem value="404">404</MenuItem>
-                <MenuItem value="405">405</MenuItem>
-                <MenuItem value="406">406</MenuItem>
-                <MenuItem value="407">407</MenuItem>
-              </Select>
+              
               <TextField
                 fullWidth
                 variant="filled"
@@ -270,6 +248,42 @@ const Form = () => {
                 <MenuItem value="3999">3999</MenuItem>
                 <MenuItem value="4699">4699</MenuItem>
               </Select>
+              <Select
+                fullWidth
+                variant="filled"
+                label="Room Number"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.roomNum}
+                name="roomNum"
+                error={!!touched.roomNum && !!errors.roomNum}
+                helperText={touched.roomNum && errors.roomNum}
+                sx={{ gridColumn: "span 1", gridRow: "3 / span 1" }}
+              >
+                <MenuItem value="roomNum" disabled>Select Room Number</MenuItem>
+                <MenuItem value="202">202</MenuItem>
+                <MenuItem value="203">203</MenuItem>
+                <MenuItem value="204">204</MenuItem>
+                <MenuItem value="205">205</MenuItem>
+                <MenuItem value="206">206</MenuItem>
+                <MenuItem value="207">207</MenuItem>
+                <MenuItem value="208">208</MenuItem>
+                <MenuItem value="301">301</MenuItem>
+                <MenuItem value="302">302</MenuItem>
+                <MenuItem value="303">303</MenuItem>
+                <MenuItem value="304">304</MenuItem>
+                <MenuItem value="305">305</MenuItem>
+                <MenuItem value="306">306</MenuItem>
+                <MenuItem value="307">307</MenuItem>
+                <MenuItem value="308">308</MenuItem>
+                <MenuItem value="401">401</MenuItem>
+                <MenuItem value="402">402</MenuItem>
+                <MenuItem value="403">403</MenuItem>
+                <MenuItem value="404">404</MenuItem>
+                <MenuItem value="405">405</MenuItem>
+                <MenuItem value="406">406</MenuItem>
+                <MenuItem value="407">407</MenuItem>
+              </Select>
               <TextField
                 fullWidth
                 variant="filled"
@@ -281,7 +295,7 @@ const Form = () => {
                 name="discount"
                 error={!!touched.discount && !!errors.discount}
                 helperText={touched.discount && errors.discount}
-                sx={{ gridColumn: "span 1",gridRow: "3 / span 1" }}
+                sx={{ gridColumn: "span 1",gridRow: "4 / span 1" }}
               />
               <TextField
                 fullWidth

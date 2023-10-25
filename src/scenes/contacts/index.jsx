@@ -4,8 +4,17 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
+import { ToastContainer, toast } from "react-toastify";
 import { db } from "../../config/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  getDoc,
+} from "firebase/firestore";
+import EditableDateCell from "./EditableDateCell";
+import EditableDaysCell from "./EditabelDaysCell";
 
 const Contacts = () => {
   const theme = useTheme();
@@ -13,7 +22,7 @@ const Contacts = () => {
 
   const columns = [
     { field: "id", headerName: "ID", flex: 0.5 },
-    { field: "registrarId", headerName: "Registrar ID" },
+    { field: "idPresented", headerName: "ID Presented" },
     {
       field: "name",
       headerName: "Name",
@@ -38,9 +47,22 @@ const Contacts = () => {
       flex: 1,
     },
     {
-      field: "date",
+      field: "checkInDate",
       headerName: "Check-in Date",
       flex: 1,
+    },
+    {
+      field: "checkOutDate",
+      headerName: "Check-out Date",
+      flex: 1,
+      renderCell: (params) => {
+        return (
+          <EditableDateCell
+            initialValue={params.row.checkOutDate}
+            onSave={(newDate) => handleDateEdit(params.row.id, newDate)}
+          />
+        );
+      },
     },
     {
       field: "time",
@@ -51,47 +73,99 @@ const Contacts = () => {
       field: "cost",
       headerName: "Cost",
       flex: 1,
-      renderCell: (params) => (
-        // Render the cost with a peso sign
-        <span>₱ {params.value}</span>
-      ),
+      renderCell: (params) => <span>₱ {params.value}</span>,
+    },
+    {
+      field: "days",
+      headerName: "Number of Days",
+      flex: 1,
+      renderCell: (params) => {
+        return (
+          <EditableDaysCell
+            initialValue={params.row.days}
+            onSave={(newDays) => handleDaysEdit(params.row.id, newDays)}
+          />
+        );
+      },
     },
   ];
+
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    // Define an async function to fetch data from Firestore
     const fetchData = async () => {
       const querySnapshot = await getDocs(collection(db, "check-in"));
       const data = [];
-      let idCounter = 1;
       querySnapshot.forEach((doc) => {
         const docData = doc.data();
-        // Format data as required by the DataGrid
         data.push({
-          id: idCounter++, // Firestore document ID
-          registrarId: docData.idPresented,
+          id: doc.id,
+          idPresented: docData.idPresented,
           name: `${docData.firstName} ${docData.lastName}`,
           walkInOnline: docData.checkinType,
           phone: docData.contact,
           address: docData.address,
-          date: docData.date,
+          checkInDate: docData.checkInDate,
+          checkOutDate: docData.checkOutDate,
           time: docData.time,
           cost: docData.total,
+          days: docData.numberOfDays,
         });
       });
       setRows(data);
     };
 
-    // Call the async function to fetch data when the component mounts
     fetchData();
   }, []);
+
+  const handleDateEdit = async (documentId, newDate) => {
+    try {
+      const docRef = doc(db, "check-in", documentId);
+      await updateDoc(docRef, {
+        checkOutDate: newDate,
+      });
+      toast.success("Date Successfully Adjusted", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } catch (error) {
+      console.error("Error updating date:", error);
+      toast.error("Data failed to submit", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
+  const handleDaysEdit = async (documentId, newDays) => {
+    try {
+      const docRef = doc(db, "check-in", documentId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const docData = docSnap.data();
+        const total =
+          parseFloat(docData.roomRate) - parseFloat(docData.discount);
+        await updateDoc(docRef, {
+          numberOfDays: newDays,
+          total: parseFloat(total) * parseFloat(newDays),
+        });
+        toast.success("Days and Cost Successfully Adjusted", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating Days:", error);
+      toast.error("Data failed to submit", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
   return (
     <Box m="20px">
-      <Header
-        title="Check-in"
-        subtitle="List of customers"
-      />
+      <Header title="Check-in" subtitle="List of customers" />
       <Box
         m="40px 0 0 0"
         height="75vh"
@@ -124,6 +198,7 @@ const Contacts = () => {
           },
         }}
       >
+        <ToastContainer />
         <DataGrid
           rows={rows}
           columns={columns}
