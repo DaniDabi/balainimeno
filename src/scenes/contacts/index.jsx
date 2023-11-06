@@ -88,6 +88,11 @@ const Contacts = () => {
         );
       },
     },
+    {
+      field: "roomNum",
+      headerName: "Room Number",
+      flex: 1,
+    },
   ];
 
   const [rows, setRows] = useState([]);
@@ -110,6 +115,7 @@ const Contacts = () => {
           time: docData.time,
           cost: docData.total,
           days: docData.numberOfDays,
+          roomNum: docData.roomNum,
         });
       });
       setRows(data);

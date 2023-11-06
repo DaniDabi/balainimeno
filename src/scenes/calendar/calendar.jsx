@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
-import FullCalendar, { formatDate } from "@fullcalendar/react";
+import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {
   Box,
-  List,
-  ListItem,
-  ListItemText,
   Typography,
   TextField,
   Button,
@@ -57,21 +54,6 @@ const Calendar = () => {
     };
   }, []);
 
-  const handleDateClick = (selected) => {
-    const title = prompt("Please enter a new title for your event");
-    const calendarApi = selected.view.calendar;
-    calendarApi.unselect();
-
-    if (title) {
-      calendarApi.addEvent({
-        id: `${selected.dateStr}-${title}`,
-        title,
-        start: selected.startStr,
-        end: selected.endStr,
-        allDay: selected.allDay,
-      });
-    }
-  };
 
   const handleEventClick = (selected) => {
     if (
@@ -108,7 +90,7 @@ const Calendar = () => {
 
       <Box display="flex" justifyContent="space-between">
         {/* CALENDAR SIDEBAR */}
-        <Box
+        {/* <Box
           flex="1 1 20%"
           backgroundColor={colors.primary[400]}
           p="15px"
@@ -140,9 +122,9 @@ const Calendar = () => {
               </ListItem>
             ))}
           </List>
-        </Box>
+        </Box> */}
 
-        {/* CALENDAR */}
+        {/* CALENDAR */}\
         <Box flex="1 1 100%" ml="15px">
           <FullCalendar
             height="75vh"
@@ -162,7 +144,6 @@ const Calendar = () => {
             selectable={true}
             selectMirror={true}
             dayMaxEvents={true}
-            select={handleDateClick}
             eventClick={handleEventClick}
             events={currentEvents} // Pass the events data to FullCalendar
           />

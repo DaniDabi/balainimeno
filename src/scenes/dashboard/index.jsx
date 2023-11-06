@@ -3,7 +3,7 @@ import { tokens } from "../../theme";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import EmailIcon from "@mui/icons-material/Email";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import DiscountIcon from '@mui/icons-material/Discount';
 import Header from "../../components/Header";
 import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
@@ -11,6 +11,7 @@ import ProgressCircle from "../../components/ProgressCircle";
 import { collection, query, onSnapshot } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import { db } from "../../config/firebase";
+import { Link } from "react-router-dom";
 
 
 const Dashboard = () => {
@@ -18,28 +19,18 @@ const Dashboard = () => {
   const colors = tokens(theme.palette.mode);
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [totalSales, setTotalSales] = useState(0);
-  useEffect(() => {
-    const checkInCollection = collection(db, "check-in");
-    const checkInQuery = query(checkInCollection);
+  const [totalEvent, setTotalEvent] = useState(0);
+  const [totalDiscount, setTotalDiscount] = useState(0);  
 
-    const unsubscribe = onSnapshot(checkInQuery, (snapshot) => {
-      const transactions = [];
-      snapshot.forEach((doc) => {
-        const transactionData = doc.data();
-        transactions.push({
-          txId: doc.id,
-          user: `${transactionData.firstName} ${transactionData.lastName}`,
-          date: transactionData.date,
-          cost: transactionData.total,
-        });
-      });
-      setRecentTransactions(transactions);
+  const countTotalEvents = () => {
+    const eventCollection = collection(db, "events");
+    const eventQuery = query(eventCollection);
+
+    onSnapshot(eventQuery, (snapshot) => {
+      const totalEvents = snapshot.size;
+      setTotalEvent(totalEvents);
     });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  };
 
   useEffect(() => {
     const checkInCollection = collection(db, "check-in");
@@ -48,6 +39,7 @@ const Dashboard = () => {
     const unsubscribe = onSnapshot(checkInQuery, (snapshot) => {
       const transactions = [];
       let total = 0; // Initialize total sales
+      let totalDiscount = 0;
 
       snapshot.forEach((doc) => {
         const transactionData = doc.data();
@@ -56,20 +48,22 @@ const Dashboard = () => {
           user: `${transactionData.firstName} ${transactionData.lastName}`,
           date: transactionData.date,
           cost: transactionData.total,
+          discount: transactionData.discount || 0,
         });
-        total += transactionData.total; // Add to total sales
+        total += transactionData.total;
+        totalDiscount += transactionData.discount || 0; // Add to total sales
       });
 
       setRecentTransactions(transactions);
       setTotalSales(total); // Set the total sales state
+      setTotalDiscount(totalDiscount);
     });
+      countTotalEvents();
 
     return () => {
       unsubscribe();
     };
   }, []);
-
-
 
   return (
     <Box m="20px">
@@ -102,24 +96,25 @@ const Dashboard = () => {
       >
         {/* ROW 1 */}
         <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="12,361"
-            subtitle="Emails Sent"
-            progress="0.75"
-            increase="+14%"
-            icon={
-              <EmailIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
+            gridColumn="span 3"
+            backgroundColor={colors.primary[400]}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <StatBox
+              title={totalEvent}
+              subtitle={
+                <Link to="/calendar" style={{ textDecoration: "none", color: colors.greenAccent[600]}} >Total Booking</Link>
+              }
+              progress="0.75"
+              icon={
+                <EmailIcon
+                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+                />
+              }
+            />
+          </Box>
         <Box
           gridColumn="span 3"
           backgroundColor={colors.primary[400]}
@@ -131,7 +126,6 @@ const Dashboard = () => {
             title="431,225"
             subtitle="Sales Obtained"
             progress="0.50"
-            increase="+21%"
             icon={
               <PointOfSaleIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -147,12 +141,11 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="32,441"
-            subtitle="New Clients"
-            progress="0.30"
-            increase="+5%"
+            title={`₱ ${totalDiscount}`}
+            subtitle="Total Discounts"
+            progress="1"
             icon={
-              <PersonAddIcon
+              <DiscountIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
@@ -167,7 +160,9 @@ const Dashboard = () => {
       >
         <StatBox
           title={`₱ ${totalSales}`} 
-          subtitle="Total Sales" /* Updated subtitle */
+          subtitle={
+            <Link to="/bar" style={{ textDecoration: "none", color: colors.greenAccent[600]}} >Total Sales</Link>
+          }
           icon={
             <PointOfSaleIcon
               sx={{ color: colors.greenAccent[600], fontSize: "26px" }}

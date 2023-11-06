@@ -25,18 +25,19 @@ const Form = () => {
       await addDoc(checkInCollection, {
         checkinType: values.checkinType,
         idPresented: values.idPresented,
-        checkInDate: values.che,
+        checkInDate: values.checkInDate,
         checkOutDate: values.checkOutDate,
         time: values.time,
         firstName: values.firstName,
         lastName: values.lastName,
-        roomType: values.roomType,
         roomNum: values.roomNum,
+        roomType: values.roomType,
         contact: values.contact,
         address: values.address,
         roomRate: values.roomRate,
-        discount: values.discount,
         numberOfDays: values.numberOfDays,
+        discount: values.discount,
+        promo: values.promo,
         total: parseFloat(total) * parseFloat (values.numberOfDays)
       });
       toast.success("Data successfully submitted", {
@@ -182,26 +183,6 @@ const Form = () => {
                 helperText={touched.checkOutDate && errors.checkOutDate}
                 sx={{ gridColumn: "span 1", gridRow: "2 / span 1" }}
               />
-              <Select
-                fullWidth
-                variant="filled"
-                label="Room Type"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.roomType}
-                name="roomType"
-                error={!!touched.roomType && !!errors.roomType}
-                helperText={touched.roomType && errors.roomType}
-                sx={{ gridColumn: "span 1", gridRow: "2 / span 1" }}
-              >
-                <MenuItem value="roomType" disabled>Select room type</MenuItem>
-                <MenuItem value="kingSuite">King Suite</MenuItem>
-                <MenuItem value="queenChamber">Queen Chamber</MenuItem>
-                <MenuItem value="knightRoom">Knight Room</MenuItem>
-                <MenuItem value="queenFamily1">Queen Family 1</MenuItem>
-                <MenuItem value="queenFamily2">Queen Family 2</MenuItem>
-              </Select>
-              
               <TextField
                 fullWidth
                 variant="filled"
@@ -231,24 +212,23 @@ const Form = () => {
               <Select
                 fullWidth
                 variant="filled"
-                label="Room Rate"
+                label="Room Type"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.roomRate}
-                name="roomRate"
-                error={!!touched.roomRate && !!errors.roomRate}
-                helperText={touched.roomRate && errors.roomRate}
+                value={values.roomType}
+                name="roomType"
+                error={!!touched.roomType && !!errors.roomType}
+                helperText={touched.roomType && errors.roomType}
                 sx={{ gridColumn: "span 1", gridRow: "3 / span 1" }}
               >
-                <MenuItem value="roomRate" disabled>Room Rate</MenuItem>
-                <MenuItem value="600">600</MenuItem>
-                <MenuItem value="1200">1200</MenuItem>
-                <MenuItem value="1899">1899</MenuItem>
-                <MenuItem value="3499">3499</MenuItem>
-                <MenuItem value="3999">3999</MenuItem>
-                <MenuItem value="4699">4699</MenuItem>
+                <MenuItem value="roomType" disabled>Select Room Type</MenuItem>
+                <MenuItem value="Knight Room">Knight Room</MenuItem>
+                <MenuItem value="Queen Chamber">Queen Chamber</MenuItem>
+                <MenuItem value="Suite Room">Suite Room</MenuItem>
+                <MenuItem value="Queen Family 1">Queen Family 1</MenuItem>
+                <MenuItem value="Queen Faily 2">Queen Faily 2</MenuItem>
               </Select>
-              <Select
+               <Select
                 fullWidth
                 variant="filled"
                 label="Room Number"
@@ -284,19 +264,26 @@ const Form = () => {
                 <MenuItem value="406">406</MenuItem>
                 <MenuItem value="407">407</MenuItem>
               </Select>
-              <TextField
+              <Select
                 fullWidth
                 variant="filled"
-                type="number"
-                label="Discount"
+                label="Room Rate"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.discount}
-                name="discount"
-                error={!!touched.discount && !!errors.discount}
-                helperText={touched.discount && errors.discount}
-                sx={{ gridColumn: "span 1",gridRow: "4 / span 1" }}
-              />
+                value={values.roomRate}
+                name="roomRate"
+                error={!!touched.roomRate && !!errors.roomRate}
+                helperText={touched.roomRate && errors.roomRate}
+                sx={{ gridColumn: "span 1", gridRow: "2 / span 1" }}
+              >
+                <MenuItem value="roomRate" disabled>Room Rate</MenuItem>
+                <MenuItem value="600">600</MenuItem>
+                <MenuItem value="1200">1200</MenuItem>
+                <MenuItem value="1899">1899</MenuItem>
+                <MenuItem value="3499">3499</MenuItem>
+                <MenuItem value="3999">3999</MenuItem>
+                <MenuItem value="4699">4699</MenuItem>
+              </Select>
               <TextField
                 fullWidth
                 variant="filled"
@@ -310,6 +297,35 @@ const Form = () => {
                 helperText={touched.numberOfDays && errors.numberOfDays}
                 sx={{ gridColumn: "span 1", gridRow: "4 / span 1" }} // Adjust the size
               />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                label="Discount"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.discount}
+                name="discount"
+                error={!!touched.discount && !!errors.discount}
+                helperText={touched.discount && errors.discount}
+                sx={{ gridColumn: "span 1",gridRow: "4 / span 1" }}
+              />
+               <Select
+                fullWidth
+                variant="filled"
+                label="Promo"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.promo}
+                name="promo"
+                error={!!touched.promo && !!errors.promo}
+                helperText={touched.promo && errors.promo}
+                sx={{ gridColumn: "span 1", gridRow: "4 / span 1" }}
+              >
+                <MenuItem value="promoRate" disabled>Promo?</MenuItem>
+                <MenuItem value="Yes">Yes</MenuItem>  
+                <MenuItem value="No">No</MenuItem>
+              </Select>
             </Box>
             <Box display="flex" justifyContent="start" mt="20px">
               <Button type="submit" color="secondary" variant="contained"  disabled={isLoading}>
@@ -346,11 +362,12 @@ const initialValues = {
   address: "",
   checkinType: "select",
   idPresented: "id",
-  roomType:"roomType",
   roomNum:"roomNum",
+  roomType:"roomType",
   roomRate:"roomRate",
-  discount: 0,
   numberOfDays: 1,
+  discount: 0,
+  promo:"promoRate",
 };
 
 export default Form;
